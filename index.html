@@ -112,6 +112,12 @@
 
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
     <!-- Google Web Fonts with Font-Display Block Strategy -->    
     <!-- Preconnect to font domains with early hints -->
@@ -190,8 +196,8 @@
     <link href="css/optimized/animate.min.css" rel="stylesheet" media="print" onload="this.media='all'">
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- Customized Bootstrap Stylesheet - Optimized & Deferred -->
-    <link href="css/optimized/bootstrap.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <!-- Customized Bootstrap Stylesheet - Optimized & Deferred with high importance -->
+    <link href="css/optimized/bootstrap.min.css" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;" fetchpriority="high">
 
     <!-- Template Stylesheet - Preloaded and Minified -->
     <link rel="preload" href="css/style.min.css" as="style" importance="high" fetchpriority="high">
@@ -464,7 +470,7 @@
                         </div>
                         <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp" data-wow-delay="0.3s" style="min-height:480px;contain:layout size;content-visibility:auto;">
                             <div class="owl-carousel screenshot-carousel" style="min-height:480px;min-width:270px;contain:layout size style;">
-                                <img class="img-fluid" src="img/screenshot-1.webp" alt="App Screenshot 1" width="270" height="480" fetchpriority="high">
+                                <img class="img-fluid" src="img/screenshot-1.webp" alt="App Screenshot 1" width="270" height="480" fetchpriority="high" decoding="async">
                                 <img class="img-fluid" src="img/screenshot-2.webp" alt="App Screenshot 2" width="270" height="480" loading="lazy">
                                 <img class="img-fluid" src="img/screenshot-3.webp" alt="App Screenshot 3" width="270" height="480" loading="lazy">
                                 <img class="img-fluid" src="img/screenshot-4.webp" alt="App Screenshot 4" width="270" height="480" loading="lazy">
@@ -1100,7 +1106,7 @@
     
     <!-- LCP Optimization and BFCache Compatibility Script -->
     <script>
-      // Optimize LCP rendering
+      // Optimize LCP rendering - simplified for better performance
       const startLcpPolling = () => {
         // Use PerformanceObserver to identify the LCP element
         if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
@@ -1111,11 +1117,8 @@
             if (window.performance && window.performance.mark) {
               window.performance.mark('lcp-complete');
             }
-            // Apply optimizations to the LCP element if it's the h1
-            if (lastEntry.element && lastEntry.element.tagName === 'H1') {
-              lastEntry.element.style.contentVisibility = 'visible';
-              lastEntry.element.style.willChange = 'auto';
-            }
+            // Disconnect observer after LCP is identified to save resources
+            lcpObserver.disconnect();
           });
           lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
         }
@@ -1128,24 +1131,20 @@
         startLcpPolling();
       }
       
-      // Prevent layout shifts by ensuring content dimensions are set before rendering
+      // Prevent layout shifts - optimized to reduce main thread work
       document.addEventListener('DOMContentLoaded', function() {
-        // Pre-calculate and set dimensions for dynamic content containers
-        const dynamicContainers = document.querySelectorAll('.wow, .owl-carousel, .screenshot-carousel, [class*="fadeIn"]');
-        dynamicContainers.forEach(function(container) {
-          // Ensure the container has explicit dimensions
-          if (!container.style.minHeight) {
-            const computedStyle = window.getComputedStyle(container);
-            const height = computedStyle.height;
-            if (parseInt(height) > 0) {
-              container.style.minHeight = height;
-              container.style.contain = 'layout size';
-            }
-          }
-        });
-        
-        // Force layout calculation before animations start
-        document.body.offsetHeight;
+        // Use requestIdleCallback to defer non-critical work
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(function() {
+            // Pre-calculate dimensions only for visible elements
+            const dynamicContainers = document.querySelectorAll('.wow:not(.wow-animation-done), .owl-carousel, .screenshot-carousel');
+            dynamicContainers.forEach(function(container) {
+              if (!container.style.minHeight && container.getBoundingClientRect().top < window.innerHeight * 2) {
+                container.style.minHeight = container.offsetHeight + 'px';
+              }
+            });
+          }, {timeout: 500});
+        }
       });
       // Enable bfcache compatibility
       document.addEventListener('visibilitychange', function() {
