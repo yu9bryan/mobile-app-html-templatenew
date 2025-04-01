@@ -1,9 +1,6 @@
-# Mobile App HTML Template - Performance & Accessibility Optimizations
-# 行動應用程式 HTML 模板 - 效能與無障礙優化
+# 前端效能調校作業
 
-This document outlines the performance and accessibility optimizations implemented in the mobile app HTML template to improve user experience, SEO, and Core Web Vitals metrics.
 
-本文檔概述了在行動應用程式 HTML 模板中實施的效能和無障礙優化，以改善用戶體驗、SEO 和核心網頁指標。
 
 ## Table of Contents | 目錄
 - [Accessibility Improvements | 無障礙改進](#accessibility-improvements)
