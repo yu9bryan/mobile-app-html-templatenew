@@ -28,6 +28,27 @@
     
     <!-- Critical CSS for LCP - Enhanced for faster rendering -->
     <style>
+        /* Preload critical LCP element styles */
+        h1.text-white.mb-4 {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            min-height: 120px;
+            font-family: 'Heebo-Fallback', Arial, sans-serif;
+            color: #FFFFFF !important;
+            text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            display: block;
+            margin-bottom: 1.5rem !important;
+            /* Optimize rendering */
+            content-visibility: auto;
+            contain-intrinsic-size: 0 120px;
+            will-change: contents;
+            /* Prevent layout shifts */
+            contain: layout style paint;
+        }
+        
         :root {
             --primary: #0A6ECF; /* Darkened from #4294E3 for better contrast */
             --secondary: #7209D4; /* Darkened from #8F12FD for better contrast */
@@ -173,34 +194,85 @@
     <link href="css/optimized/bootstrap.min.css" rel="stylesheet" media="print" onload="this.media='all'">
 
     <!-- Template Stylesheet - Preloaded and Minified -->
-    <link rel="preload" href="css/style.min.css" as="style" importance="high">
+    <link rel="preload" href="css/style.min.css" as="style" importance="high" fetchpriority="high">
     <link href="css/style.min.css" rel="stylesheet">
     
-    <!-- Font Loading Detection Script to prevent CLS -->
+    <!-- Inline critical CSS for LCP element -->
+    <style>
+        /* Critical rendering path optimization for h1 */
+        @media (min-width: 992px) {
+            h1.text-white.mb-4 {
+                font-size: 2.5rem;
+                line-height: 1.2;
+            }
+        }
+        @media (max-width: 991px) {
+            h1.text-white.mb-4 {
+                font-size: 2rem;
+                line-height: 1.3;
+            }
+        }
+    </style>
+    
+    <!-- Enhanced Font Loading Detection Script to prevent CLS -->
     <script>
-      // Add font loading detection
+      // Add font loading detection with improved CLS prevention
       if ('fonts' in document) {
+        // Apply fallback fonts immediately
+        document.body.classList.add('fonts-loading');
+        
         // Optimize font loading to prevent CLS
         document.fonts.ready.then(function() {
-          document.documentElement.classList.add('fonts-loaded');
-          
-          // Mark when fonts are loaded for performance monitoring
-          if (window.performance && window.performance.mark) {
-            window.performance.mark('fonts-loaded');
-          }
+          // Add a small delay to ensure layout is stable before switching fonts
+          setTimeout(function() {
+            document.documentElement.classList.add('fonts-loaded');
+            document.body.classList.add('fonts-loaded');
+            document.body.classList.remove('fonts-loading');
+            
+            // Mark when fonts are loaded for performance monitoring
+            if (window.performance && window.performance.mark) {
+              window.performance.mark('fonts-loaded');
+            }
+          }, 50);
         });
         
         // Set a timeout to add the class even if fonts fail to load
         setTimeout(function() {
           if (!document.documentElement.classList.contains('fonts-loaded')) {
             document.documentElement.classList.add('fonts-loaded');
+            document.body.classList.add('fonts-loaded');
+            document.body.classList.remove('fonts-loading');
           }
-        }, 3000); // 3 second timeout as fallback
+        }, 2000); // Reduced timeout for better user experience
       }
     </script>
     
     <!-- Accessibility Enhancement: Improved Color Contrast -->
     <style>
+        /* Prevent layout shifts during loading */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Set explicit sizes for elements that cause layout shifts */
+        .screenshot-carousel img {
+            width: 270px;
+            height: 480px;
+            aspect-ratio: 270/480;
+            object-fit: contain;
+        }
+        
+        /* Prevent animation-based layout shifts */
+        .wow {
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            contain: layout style paint;
+        }
+        
         /* Improve color contrast for accessibility */
         .btn-primary-gradient {
             background: linear-gradient(to right, var(--primary), var(--secondary));
@@ -241,6 +313,33 @@
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51" class="font-loaded">
+    <!-- Prevent FOUT with font loading strategy -->
+    <style>
+        /* Apply font styles immediately to prevent layout shift when fonts load */
+        body {
+            font-family: 'Heebo-Fallback', Arial, sans-serif;
+            font-display: swap;
+            font-size: 16px;
+            line-height: 1.5;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            /* Set explicit dimensions to prevent layout shifts */
+            contain: layout style paint;
+        }
+        
+        /* Only apply custom fonts after they're loaded */
+        body.fonts-loaded {
+            font-family: 'Heebo', 'Heebo-Fallback', Arial, sans-serif;
+        }
+        
+        /* Ensure all elements have explicit dimensions where possible */
+        img, svg, video, canvas, picture, iframe {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
     <!-- Add CSS to prevent layout shifts -->
     <style>
         /* Reserve space for dynamic content to prevent layout shifts */
@@ -334,7 +433,7 @@
                 <div class="container px-lg-5">
                     <div class="row g-5">
                         <div class="col-lg-8 text-center text-lg-start">
-                            <h1 class="text-white mb-4">The Revolutionary App That Helps To Control Your Own Fitness</h1>
+                            <h1 class="text-white mb-4" style="font-size:2.5rem;line-height:1.2;font-weight:700;contain:layout style paint;content-visibility:auto;" fetchpriority="high">The Revolutionary App That Helps To Control Your Own Fitness</h1>
                             <p class="text-white pb-3" style="min-height:100px;max-width:100%;overflow-wrap:break-word;contain:layout style paint;">Tempor rebum no at dolore lorem clita rebum rebum ipsum rebum stet dolor sed justo kasd. Ut dolor sed magna dolor sea diam. Sit diam sit justo amet ipsum vero ipsum clita lorem</p>
                             <a href="" class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill me-3">Read More</a>
                             <a href="" class="btn btn-secondary-gradient py-sm-3 px-4 px-sm-5 rounded-pill">Contact Us</a>
@@ -363,13 +462,13 @@
                                 });
                             </script>
                         </div>
-                        <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp" data-wow-delay="0.3s">
-                            <div class="owl-carousel screenshot-carousel">
-                                <img class="img-fluid" src="img/screenshot-1.webp" alt="" width="270" height="480">
-                                <img class="img-fluid" src="img/screenshot-2.webp" alt="" width="270" height="480">
-                                <img class="img-fluid" src="img/screenshot-3.webp" alt="" width="270" height="480">
-                                <img class="img-fluid" src="img/screenshot-4.webp" alt="" width="270" height="480">
-                                <img class="img-fluid" src="img/screenshot-5.webp" alt="" width="270" height="480">
+                        <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp" data-wow-delay="0.3s" style="min-height:480px;contain:layout size;content-visibility:auto;">
+                            <div class="owl-carousel screenshot-carousel" style="min-height:480px;min-width:270px;contain:layout size style;">
+                                <img class="img-fluid" src="img/screenshot-1.webp" alt="App Screenshot 1" width="270" height="480" fetchpriority="high">
+                                <img class="img-fluid" src="img/screenshot-2.webp" alt="App Screenshot 2" width="270" height="480" loading="lazy">
+                                <img class="img-fluid" src="img/screenshot-3.webp" alt="App Screenshot 3" width="270" height="480" loading="lazy">
+                                <img class="img-fluid" src="img/screenshot-4.webp" alt="App Screenshot 4" width="270" height="480" loading="lazy">
+                                <img class="img-fluid" src="img/screenshot-5.webp" alt="App Screenshot 5" width="270" height="480" loading="lazy">
                             </div>
                         </div>
                     </div>
@@ -410,7 +509,7 @@
                         <a href="" class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Read More</a>
                     </div>
                     <div class="col-lg-6">
-                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s" src="img/about.webp" width="500" height="500">
+                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s" src="img/about.webp" width="500" height="500" loading="lazy" alt="About our app">
                     </div>
                 </div>
             </div>
@@ -499,8 +598,8 @@
                         <p class="mb-4"><i class="fa fa-check text-primary-gradient me-3"></i>Clita erat ipsum et lorem et sit</p>
                         <a href="" class="btn btn-primary-gradient py-sm-3 px-4 px-sm-5 rounded-pill mt-3">Read More</a>
                     </div>
-                    <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="owl-carousel screenshot-carousel">
+                    <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp" data-wow-delay="0.3s" style="min-height:480px;contain:layout size;content-visibility:auto;">
+                        <div class="owl-carousel screenshot-carousel" style="min-height:480px;min-width:270px;contain:layout size style;">
                             <img class="img-fluid" src="img/screenshot-1.webp" alt="" width="270" height="480">
                             <img class="img-fluid" src="img/screenshot-2.webp" alt="" width="270" height="480">
                             <img class="img-fluid" src="img/screenshot-3.webp" alt="" width="270" height="480">
@@ -749,7 +848,7 @@
                 <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
                     <div class="testimonial-item rounded p-4">
                         <div class="d-flex align-items-center mb-4">
-                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-1.webp" width="85" height="85" style="width: 85px; height: 85px;">
+                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-1.webp" width="85" height="85" style="width: 85px; height: 85px;" loading="lazy" alt="Testimonial 1">
                             <div class="ms-4">
                                 <h5 class="mb-1">Client Name</h5>
                                 <p class="mb-1">Profession</p>
@@ -766,7 +865,7 @@
                     </div>
                     <div class="testimonial-item rounded p-4">
                         <div class="d-flex align-items-center mb-4">
-                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-2.webp" width="85" height="85" style="width: 85px; height: 85px;">
+                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-2.webp" width="85" height="85" style="width: 85px; height: 85px;" loading="lazy" alt="Testimonial 2">
                             <div class="ms-4">
                                 <h5 class="mb-1">Client Name</h5>
                                 <p class="mb-1">Profession</p>
@@ -783,7 +882,7 @@
                     </div>
                     <div class="testimonial-item rounded p-4">
                         <div class="d-flex align-items-center mb-4">
-                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-3.webp" width="85" height="85" style="width: 85px; height: 85px;">
+                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-3.webp" width="85" height="85" style="width: 85px; height: 85px;" loading="lazy" alt="Testimonial 3">
                             <div class="ms-4">
                                 <h5 class="mb-1">Client Name</h5>
                                 <p class="mb-1">Profession</p>
@@ -800,7 +899,7 @@
                     </div>
                     <div class="testimonial-item rounded p-4">
                         <div class="d-flex align-items-center mb-4">
-                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-4.webp" width="85" height="85" style="width: 85px; height: 85px;">
+                            <img class="img-fluid bg-white rounded flex-shrink-0 p-1" src="img/testimonial-4.webp" width="85" height="85" style="width: 85px; height: 85px;" loading="lazy" alt="Testimonial 4">
                             <div class="ms-4">
                                 <h5 class="mb-1">Client Name</h5>
                                 <p class="mb-1">Profession</p>
@@ -942,9 +1041,9 @@
     </div>
 
     <!-- Preload Critical JavaScript -->
-    <link rel="preload" href="https://code.jquery.com/jquery-3.4.1.min.js" as="script">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" as="script">
-    <link rel="preload" href="lib/owlcarousel/owl.carousel.min.js" as="script">
+    <link rel="preload" href="https://code.jquery.com/jquery-3.4.1.min.js" as="script" fetchpriority="low">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" as="script" fetchpriority="low">
+    <link rel="preload" href="lib/owlcarousel/owl.carousel.min.js" as="script" fetchpriority="low">
     
     <!-- JavaScript Libraries - Deferred -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" defer></script>
@@ -958,8 +1057,96 @@
     <!-- Template Javascript -->
     <script src="js/main.js" defer></script>
     
-    <!-- BFCache Compatibility Script -->
+    <!-- Lazy Loading Enhancement Script -->
     <script>
+      // Use Intersection Observer to enhance native lazy loading
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check if Intersection Observer is supported
+        if ('IntersectionObserver' in window) {
+          const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+              // When image enters viewport
+              if (entry.isIntersecting) {
+                const img = entry.target;
+                const src = img.getAttribute('data-src');
+                // If the image has a data-src attribute, load it
+                if (src) {
+                  img.src = src;
+                  img.removeAttribute('data-src');
+                }
+                // Stop observing the image
+                observer.unobserve(img);
+              }
+            });
+          }, {
+            rootMargin: '200px 0px', // Start loading 200px before it enters viewport
+            threshold: 0.01
+          });
+          
+          // Target all images with loading="lazy" that are not in the first viewport
+          const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+          lazyImages.forEach(img => {
+            // For browsers that don't support native lazy loading
+            if (!('loading' in HTMLImageElement.prototype)) {
+              const currentSrc = img.src;
+              img.setAttribute('data-src', currentSrc);
+              img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + img.width + ' ' + img.height + '"%3E%3C/svg%3E';
+            }
+            imageObserver.observe(img);
+          });
+        }
+      });
+    </script>
+    
+    <!-- LCP Optimization and BFCache Compatibility Script -->
+    <script>
+      // Optimize LCP rendering
+      const startLcpPolling = () => {
+        // Use PerformanceObserver to identify the LCP element
+        if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
+          const lcpObserver = new PerformanceObserver((entryList) => {
+            const entries = entryList.getEntries();
+            const lastEntry = entries[entries.length - 1];
+            // Mark when LCP is complete
+            if (window.performance && window.performance.mark) {
+              window.performance.mark('lcp-complete');
+            }
+            // Apply optimizations to the LCP element if it's the h1
+            if (lastEntry.element && lastEntry.element.tagName === 'H1') {
+              lastEntry.element.style.contentVisibility = 'visible';
+              lastEntry.element.style.willChange = 'auto';
+            }
+          });
+          lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+        }
+      };
+      
+      // Start LCP optimization as early as possible
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startLcpPolling);
+      } else {
+        startLcpPolling();
+      }
+      
+      // Prevent layout shifts by ensuring content dimensions are set before rendering
+      document.addEventListener('DOMContentLoaded', function() {
+        // Pre-calculate and set dimensions for dynamic content containers
+        const dynamicContainers = document.querySelectorAll('.wow, .owl-carousel, .screenshot-carousel, [class*="fadeIn"]');
+        dynamicContainers.forEach(function(container) {
+          // Ensure the container has explicit dimensions
+          if (!container.style.minHeight) {
+            const computedStyle = window.getComputedStyle(container);
+            const height = computedStyle.height;
+            if (parseInt(height) > 0) {
+              container.style.minHeight = height;
+              container.style.contain = 'layout size';
+            }
+          }
+        });
+        
+        // Force layout calculation before animations start
+        document.body.offsetHeight;
+      });
       // Enable bfcache compatibility
       document.addEventListener('visibilitychange', function() {
         // When the page becomes visible again after being in bfcache
