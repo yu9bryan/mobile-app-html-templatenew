@@ -134,10 +134,6 @@ The following SEO improvements were implemented:
   - Added comprehensive meta description for better search engine visibility
   - Included relevant keywords for the fitness app
 
-- **Social Media Sharing | 社交媒體分享**:
-  - Added Open Graph and Twitter Card meta tags
-  - Included proper image and description for social sharing
-
 - **Structured Data | 結構化數據**:
   - Improved semantic HTML structure
   - Added proper heading hierarchy
